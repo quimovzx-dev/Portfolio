@@ -2,543 +2,212 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>quimovzx — dev log</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quimovzx | Developer and builder</title>
+<meta name="description" content="Portfolio of Quimovzx - a student developer building web tools, browser experiments, small CLIs and community projects.">
+<meta property="og:title" content="Quimovzx | Developer and builder">
+<meta property="og:description" content="Web tools, browser experiments, CLIs and community projects.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0b0d12">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0d12'/%3E%3Ctext x='16' y='23' font-size='20' font-family='monospace' font-weight='700' text-anchor='middle' fill='%237c9cff'%3EQ%3C/text%3E%3C/svg%3E">
 <style>
-  :root{
-    --bg: #030708;
-    --panel-raw: rgba(10, 20, 24, 0.4);
-    --panel-line: rgba(143, 216, 232, 0.08);
-    --ice: #8fd8e8;
-    --ice-dim: #4c7d8a;
-    --choc: #b0703f;
-    --choc-bright: #d99456;
-    --text: #dfe8e6;
-    --text-dim: #7d9296;
-    --mono: 'JetBrains Mono', monospace;
-    --sans: 'Space Grotesk', sans-serif;
-  }
-  
-  *{box-sizing:border-box; margin:0; padding:0;}
-  html{scroll-behavior:smooth;}
-  
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    line-height: 1.5;
-    overflow-x: hidden;
-    perspective: 1400px;
-    min-height: 100vh;
-  }
-  
-  @media (prefers-reduced-motion: reduce){
-    *{animation:none !important; transition:none !important; transform: none !important;}
-    .liquid-bg { display: none; }
-  }
-
-  ::selection{background:var(--choc); color:#0a1316;}
-  a{color:inherit; text-decoration: none;}
-
-  /* --- Liquid Dark Engine Background --- */
-  .liquid-bg {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    background: linear-gradient(180deg, #04090b 0%, #020405 100%);
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  .blob {
-    position: absolute;
-    width: min(60vw, 600px);
-    height: min(60vw, 600px);
-    background: radial-gradient(circle, rgba(16, 42, 50, 0.6) 0%, rgba(8, 19, 23, 0.3) 50%, rgba(0,0,0,0) 75%);
-    mix-blend-mode: screen;
-    filter: url(#liquid-goo);
-    animation: liquid-move 25s infinite alternate ease-in-out;
-  }
-
-  .blob:nth-child(2) {
-    right: -10%;
-    top: 20%;
-    background: radial-gradient(circle, rgba(143, 216, 232, 0.08) 0%, rgba(20, 36, 41, 0.4) 45%, rgba(0,0,0,0) 70%);
-    animation-duration: 35s;
-    animation-delay: -5s;
-  }
-
-  @keyframes liquid-move {
-    0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-    33% { transform: translate(10vw, 15vh) scale(1.1) rotate(120deg); }
-    66% { transform: translate(-5vw, 25vh) scale(0.9) rotate(240deg); }
-    100% { transform: translate(2vw, -5vh) scale(1.05) rotate(360deg); }
-  }
-
-  .noise{
-    position:fixed; inset:0; pointer-events:none; z-index:1; opacity:0.02;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' /%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-
-  /* --- Fluid Adaptive Sticky Navigation --- */
-  .nav-container {
-    position: fixed;
-    z-index: 100;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--panel-line);
-    background: rgba(4, 9, 11, 0.5);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  @media (max-width: 767px) {
-    .nav-container {
-      bottom: 20px; left: 16px; right: 16px;
-      border-radius: 14px;
-      padding: 14px;
-    }
-    .nav-links { display: flex; justify-content: space-around; width: 100%; list-style: none;}
-  }
-
-  @media (min-width: 768px) {
-    .nav-container {
-      top: 50%; left: 32px;
-      transform: translateY(-50%);
-      border-radius: 8px;
-      padding: 28px 18px;
-    }
-    .nav-links { display: flex; flex-direction: column; gap: 24px; list-style: none;}
-  }
-
-  .nav-item a {
-    font-family: var(--mono);
-    font-size: 13px;
-    color: var(--text-dim);
-    position: relative;
-    padding: 4px 8px;
-    transition: color 0.3s;
-  }
-  .nav-item a:hover, .nav-item.active a {
-    color: var(--ice);
-  }
-  .nav-item.active a::before {
-    content: '>';
-    position: absolute;
-    left: -10px;
-    color: var(--choc-bright);
-  }
-
-  header{
-    max-width:920px; margin:0 auto; padding:60px 24px 40px;
-    position:relative; z-index:2;
-  }
-  @media (min-width: 768px) {
-    header { padding: 120px 24px 40px 140px; }
-  }
-
-  .prompt-line{
-    font-family:var(--mono); font-size:13px; color:var(--ice-dim);
-    display:flex; gap:8px; margin-bottom:6px;
-  }
-  .prompt-line .cmd{color:var(--ice);}
-
-  #boot{
-    font-family:var(--mono); font-size:11px; line-height:1.4;
-    color:var(--ice-dim); min-height:170px; margin-bottom:28px;
-  }
-  #boot .ready{color:var(--choc-bright); font-weight:700;}
-
-  h1{
-    font-family:var(--mono); font-weight:800; letter-spacing:-1px;
-    font-size:clamp(42px, 9vw, 84px); color:var(--text);
-    line-height:0.95;
-  }
-  h1 .bracket{color:var(--ice-dim); font-weight:400;}
-  h1 .handle{color:var(--ice);}
-
-  .tagline{
-    font-family:var(--sans); font-size:clamp(15px, 2.4vw, 19px);
-    color:var(--text-dim); margin-top:18px; max-width:56ch;
-  }
-  .tagline .hl{color:var(--choc-bright); font-weight:600;}
-
-  .chips{display:flex; flex-wrap:wrap; gap:10px; margin-top:26px;}
-  .chip{
-    font-family:var(--mono); font-size:12px; color:var(--ice);
-    border:1px solid var(--ice-dim); padding:5px 12px; border-radius:2px;
-    background:rgba(143,216,232,0.02);
-  }
-
-  /* --- Spatial Section Transitions --- */
-  main section{
-    max-width:920px; margin:0 auto; padding:60px 24px; position:relative; z-index:2;
-    opacity: 0; 
-    transform: translateY(60px) scale(0.98);
-    transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.9s ease;
-  }
-  main section.visible {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  @media (min-width: 768px) {
-    main section { padding: 60px 24px 60px 140px; }
-  }
-
-  .divider{
-    font-family:var(--mono); font-size:12px; color:var(--ice-dim);
-    display:flex; align-items:center; gap:14px; margin-bottom:34px;
-  }
-  .divider::after{content:''; flex:1; height:1px; background:var(--panel-line);}
-  .divider .path{color:var(--choc-bright);}
-
-  .about-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:48px;}
-  @media (max-width:720px){.about-grid{grid-template-columns:1fr;}}
-
-  .about-grid p{color:var(--text-dim); font-size:15.5px; margin-bottom:16px;}
-  .about-grid strong{color:var(--text); font-weight:600;}
-
-  /* Glassmorphic Elements */
-  .fact-container {
-    background: var(--panel-raw);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--panel-line);
-    padding: 24px;
-    border-radius: 8px;
-  }
-  .fact-list{font-family:var(--mono); font-size:13px;}
-  .fact-list li{
-    list-style:none; display:flex; justify-content:space-between;
-    padding:9px 0; border-bottom:1px solid var(--panel-line); color:var(--text-dim);
-  }
-  .fact-list li:last-child { border: none; }
-  .fact-list li span:last-child{color:var(--ice);}
-
-  .projects{
-    display:grid; 
-    grid-template-columns:repeat(2,1fr); 
-    gap:24px;
-  }
-  @media (max-width:640px){.projects{grid-template-columns:1fr;}}
-
-  /* --- Deep Liquid Glassmorphic Engine with Specular Reflection --- */
-  .proj-wrapper {
-    perspective: 1200px;
-  }
-  .proj{
-    position: relative;
-    background: var(--panel-raw);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid var(--panel-line);
-    padding: 28px; 
-    border-radius: 12px;
-    box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.3);
-    transform-style: preserve-3d;
-    transform: translateZ(0);
-    overflow: hidden;
-    transition: background 0.3s ease, border-color 0.3s ease, transform 0.12s ease-out;
-  }
-  
-  /* Specular Light Dynamic Overlap Overlay */
-  .proj::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 60%);
-    z-index: 1;
-    pointer-events: none;
-    transition: opacity 0.4s ease;
-    opacity: 0;
-  }
-  .proj:hover::before {
-    opacity: 1;
-  }
-  
-  .proj:hover{
-    background: rgba(18, 34, 40, 0.4);
-    border-color: rgba(143, 216, 232, 0.25);
-  }
-  .proj-head{
-    display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px;
-    transform: translateZ(30px);
-    z-index: 2;
-  }
-  .proj-name{font-family:var(--mono); font-weight:700; font-size:16px; color:var(--ice);}
-  .proj-status{font-family:var(--mono); font-size:10px; color:var(--choc-bright); border:1px solid var(--choc); padding:2px 8px; border-radius:2px; white-space:nowrap;}
-  .proj-desc{color:var(--text-dim); font-size:13.5px; transform: translateZ(15px); z-index: 2;}
-
-  .stack{display:flex; flex-wrap:wrap; gap:10px 22px;}
-  .stack-item{font-family:var(--mono); font-size:13px; color:var(--text-dim); display:flex; align-items:center; gap:8px;}
-  .stack-item::before{content:'▸'; color:var(--choc-bright);}
-
-  footer{
-    max-width:920px; margin:0 auto; padding:50px 24px 140px;
-    font-family:var(--mono); font-size:13px; color:var(--text-dim);
-    position:relative; z-index:2;
-  }
-  @media (min-width: 768px) {
-    footer { padding: 50px 24px 80px 140px; }
-  }
-  footer a{color:var(--ice); border-bottom:1px solid var(--ice-dim); transition: color 0.2s, border-color 0.2s;}
-  footer a:hover{color:var(--choc-bright); border-color:var(--choc-bright);}
-  .foot-links{display:flex; gap:24px; flex-wrap:wrap; margin-top:14px;}
-
-  a:focus-visible, button:focus-visible{outline:2px solid var(--choc-bright); outline-offset:3px;}
+:root{--bg:#0b0d12;--panel:#12151d;--line:#232838;--text:#e8eaf2;--mute:#9aa1b5;--a:#7c9cff;--b:#5eead4;--r:16px}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1100px;margin:0 auto;padding:0 22px}
+nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);background:rgba(11,13,18,.7);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{font-weight:700;letter-spacing:.3px}.logo span{color:var(--a)}
+nav ul{display:flex;gap:22px;list-style:none;font-size:14px;color:var(--mute)}
+nav ul a:hover{color:var(--text)}
+.kbd{border:1px solid var(--line);background:var(--panel);color:var(--mute);border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer}
+.kbd:hover{color:var(--text);border-color:var(--a)}
+header.hero{position:relative;overflow:hidden;min-height:82vh;display:flex;align-items:center}
+#net{position:absolute;inset:0;width:100%;height:100%}
+.hero .wrap{position:relative;z-index:2;padding-top:60px;padding-bottom:60px}
+.pill{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);background:rgba(18,21,29,.8);border-radius:99px;padding:6px 14px;font-size:13px;color:var(--mute)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--b);box-shadow:0 0 10px var(--b)}
+h1{font-size:clamp(40px,8vw,84px);line-height:1.04;letter-spacing:-2px;margin:22px 0 18px;max-width:14ch}
+h1 em{font-style:normal;background:linear-gradient(90deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:var(--mute);font-size:clamp(17px,2.2vw,21px);max-width:56ch}
+.typed{color:var(--text);border-right:2px solid var(--a);padding-right:3px}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.btn{padding:12px 20px;border-radius:12px;border:1px solid var(--line);font-weight:600;font-size:15px;transition:.2s}
+.btn.p{background:var(--a);color:#0b0d12;border-color:var(--a)}
+.btn:hover{transform:translateY(-2px);border-color:var(--a)}
+section{padding:84px 0}
+.eyebrow{color:var(--a);font:600 13px/1 ui-monospace,Menlo,monospace;letter-spacing:2px;text-transform:uppercase}
+h2{font-size:clamp(28px,4vw,40px);letter-spacing:-1px;margin:12px 0 10px}
+.sub{color:var(--mute);max-width:60ch}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-top:34px}
+.stat{border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:20px}
+.stat b{display:block;font-size:34px;letter-spacing:-1px}.stat span{color:var(--mute);font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:30px 0 22px}
+.chip{border:1px solid var(--line);background:transparent;color:var(--mute);border-radius:99px;padding:7px 15px;font:inherit;font-size:14px;cursor:pointer;transition:.2s}
+.chip:hover{color:var(--text)}.chip.on{background:var(--a);border-color:var(--a);color:#0b0d12;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.card{position:relative;border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:22px;display:flex;flex-direction:column;gap:10px;transform-style:preserve-3d;transition:transform .15s,border-color .2s;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0;background:radial-gradient(260px circle at var(--mx,50%) var(--my,0%),rgba(124,156,255,.16),transparent 60%);opacity:0;transition:.25s}
+.card:hover{border-color:#3a4260}.card:hover::before{opacity:1}
+.card>*{position:relative}
+.card h3{font-size:19px}.card p{color:var(--mute);font-size:15px;flex:1}
+.tags{display:flex;flex-wrap:wrap;gap:6px}.tags span{font:12px ui-monospace,Menlo,monospace;color:var(--b);background:rgba(94,234,212,.08);padding:3px 9px;border-radius:6px}
+.links{display:flex;gap:16px;font-size:14px;font-weight:600}.links a{color:var(--a)}.links a:hover{text-decoration:underline}
+.note{font-size:12px;color:var(--mute)}
+.feat{grid-column:1/-1;display:grid;grid-template-columns:1.2fr 1fr;gap:22px;align-items:center}
+@media(max-width:760px){.feat{grid-template-columns:1fr}nav ul{display:none}}
+.demo{border:1px dashed var(--line);border-radius:12px;height:170px;display:grid;place-items:center;font:600 28px ui-monospace,Menlo,monospace;color:var(--a);letter-spacing:2px;user-select:none;cursor:pointer;text-align:center;padding:10px}
+.timeline{margin-top:34px;display:grid;gap:14px}
+.t{display:grid;grid-template-columns:110px 1fr;gap:18px;padding:18px 0;border-top:1px solid var(--line)}
+.t time{color:var(--mute);font:14px ui-monospace,Menlo,monospace}.t p{color:var(--mute)}
+.skills{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:30px}
+.skill{border:1px solid var(--line);border-radius:var(--r);padding:20px;background:var(--panel)}
+.skill h4{margin-bottom:6px}.skill p{color:var(--mute);font-size:14px}
+.connect{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.connect a{display:flex;gap:10px;align-items:center;border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:14px 20px;font-weight:600;transition:.2s}
+.connect a:hover{border-color:var(--a);transform:translateY(-2px)}
+footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mute);font-size:14px}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s,transform .7s}.reveal.in{opacity:1;transform:none}
+#pal{position:fixed;inset:0;background:rgba(5,6,10,.7);z-index:50;display:none;align-items:flex-start;justify-content:center;padding-top:14vh}
+#pal.open{display:flex}
+.box{width:min(560px,92vw);background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.box input{width:100%;background:transparent;border:0;border-bottom:1px solid var(--line);padding:16px 18px;color:var(--text);font:inherit;outline:0}
+.box ul{list-style:none;max-height:300px;overflow:auto;padding:6px}
+.box li{padding:10px 14px;border-radius:8px;cursor:pointer;color:var(--mute);font-size:15px}
+.box li.sel,.box li:hover{background:#1c2130;color:var(--text)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
+<nav><div class="wrap"><a class="logo" href="#top">quimovzx<span>.in</span></a>
+<ul><li><a href="#work">Work</a></li><li><a href="#about">About</a></li><li><a href="#skills">Skills</a></li><li><a href="#connect">Connect</a></li></ul>
+<button class="kbd" id="palBtn" aria-label="Open command menu">Jump to... <b>Ctrl K</b></button></div></nav>
 
-<!-- Liquid Goo Filter System -->
-<div class="liquid-bg">
-  <div class="blob"></div>
-  <div class="blob"></div>
-</div>
+<header class="hero" id="top"><canvas id="net" aria-hidden="true"></canvas>
+<div class="wrap"><span class="pill"><i class="dot"></i> Building in public from India</span>
+<h1>I turn ideas into <em>things you can use.</em></h1>
+<p class="lead">I'm Quimovzx, a student developer. I build <span class="typed" id="typed"></span></p>
+<div class="cta"><a class="btn p" href="#work">See my work</a><a class="btn" href="#connect">Get in touch</a></div></div></header>
 
-<svg style="position: absolute; width: 0; height: 0;" xmlns="http://www.w3.org/2000/svg">
-  <filter id="liquid-goo">
-    <feGaussianBlur in="SourceGraphic" stdDeviation="40" result="blur" />
-    <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10" result="goo" />
-    <feComposite in="SourceGraphic" in2="goo" operator="atop" />
-  </filter>
-</svg>
+<section id="work"><div class="wrap reveal">
+<div class="eyebrow">Selected work</div><h2>Projects that run, not just repos.</h2>
+<p class="sub">Most of these are live. Filter by what you care about, then open one.</p>
+<div class="chips" id="chips"></div>
+<div class="grid" id="grid"></div></div></section>
 
-<div class="noise"></div>
+<section id="about"><div class="wrap reveal">
+<div class="eyebrow">About</div><h2>Learning by shipping.</h2>
+<p class="sub">I'm a JEE aspirant who codes on the side and ships a lot. I like projects where a browser tab becomes a camera, a canvas or a database, and I'm moving into languages beyond the web: Go, Kotlin and Dart.</p>
+<div class="stats">
+<div class="stat"><b data-n="38">0</b><span>repositories on GitHub</span></div>
+<div class="stat"><b data-n="20">0</b><span>live deployments on Vercel</span></div>
+<div class="stat"><b data-n="9">0</b><span>languages touched</span></div>
+<div class="stat"><b data-n="2026">0</b><span>year of most of it</span></div></div>
+<div class="timeline">
+<div class="t"><time>Oct 2026</time><p>Community forum for JEE Main aspirants, ASCII 3D viewer, blinking ASCII eyes, a Go network CLI.</p></div>
+<div class="t"><time>Sep 2026</time><p>Browser games, a photo-to-ASCII converter, a terminal media player and a Kivy BLE scanner.</p></div>
+<div class="t"><time>Jun - Aug 2026</time><p>Gesture and camera experiments, a district problem-reporting platform, and the first Vercel deployments.</p></div></div>
+</div></section>
 
-<!-- Unified Connected Navigation -->
-<nav class="nav-container">
-  <ul class="nav-links">
-    <li class="nav-item active" data-sec="about"><a href="#about">~/about</a></li>
-    <li class="nav-item" data-sec="projects"><a href="#projects">~/projects</a></li>
-    <li class="nav-item" data-sec="stack"><a href="#stack">~/stack</a></li>
-  </ul>
-</nav>
+<section id="skills"><div class="wrap reveal">
+<div class="eyebrow">Toolbox</div><h2>What I actually use.</h2>
+<div class="skills">
+<div class="skill"><h4>Web</h4><p>HTML, CSS, JavaScript, canvas, serverless functions on Vercel.</p></div>
+<div class="skill"><h4>Python</h4><p>CLIs, a research platform (NETX), Kivy for Android.</p></div>
+<div class="skill"><h4>Systems &amp; tools</h4><p>Go, Java, Bash, Dart and PHP projects, SQL practice.</p></div>
+<div class="skill"><h4>Camera &amp; vision in the browser</h4><p>Webcam and hand-tracking experiments, image to ASCII pipelines.</p></div></div>
+</div></section>
 
-<header>
-  <div class="prompt-line">quimovzx@dev:~$ <span class="cmd">./boot.sh</span></div>
-  <div id="boot"></div>
+<section id="connect"><div class="wrap reveal">
+<div class="eyebrow">Connect</div><h2>Let's build something.</h2>
+<p class="sub">Find me here.</p>
+<div class="connect" id="connectLinks"></div></div></section>
 
-  <h1><span class="bracket">[</span><span class="handle">quimovzx</span><span class="bracket">]</span></h1>
-  <p class="tagline">Web developer building tools for <span class="hl">real-life stock tracking</span>, hunting startup ideas worth building, and compiling a <span class="hl">Linux distro</span> of my own from scratch.</p>
+<footer><div class="wrap">&copy; <span id="yr"></span> Quimovzx. Built by hand, deployed on Vercel. Tip: press Ctrl K.</div></footer>
 
-  <div class="chips">
-    <span class="chip">web dev</span>
-    <span class="chip">linux / distro-building</span>
-    <span class="chip">fintech tools</span>
-    <span class="chip">startups</span>
-  </div>
-</header>
-
-<main>
-  <section id="about" class="visible">
-    <div class="divider"><span class="path">~/about.md</span></div>
-    <div class="about-grid">
-      <div>
-        <p><strong>I'm quimovzx</strong> — a web developer who spends most nights somewhere between a code editor and a terminal.</p>
-        <p>Right now I'm scouting <strong>startup and product ideas</strong> online while building tools meant for actual, everyday use — starting with software for tracking and understanding <strong>real-life stocks</strong>. Alongside that, I'm learning Linux distributions from the ground up, with the long goal of shipping an <strong>original distro built by me</strong>.</p>
-        <p>Still early on most of this. Documenting the build as I go.</p>
-      </div>
-      <div class="fact-container">
-        <ul class="fact-list">
-          <li><span>role</span><span>web developer</span></li>
-          <li><span>currently</span><span>learning linux internals</span></li>
-          <li><span>building</span><span>stock-tracking tools</span></li>
-          <li><span>always</span><span>hunting startup ideas</span></li>
-          <li><span>likes</span><span>penguins, chocolate</span></li>
-          <li><span>status</span><span class="ready-inline">in progress</span></li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section id="projects">
-    <div class="divider"><span class="path">~/projects/ls -la</span></div>
-    <div class="projects">
-      <div class="proj-wrapper">
-        <article class="proj">
-          <div class="proj-head"><span class="proj-name">HEARTWAVE</span><span class="proj-status">building</span></div>
-          <p class="proj-desc">In-progress project — details coming as it takes shape.</p>
-        </article>
-      </div>
-      <div class="proj-wrapper">
-        <article class="proj">
-          <div class="proj-head"><span class="proj-name">RELIVE</span><span class="proj-status">building</span></div>
-          <p class="proj-desc">In-progress project — details coming as it takes shape.</p>
-        </article>
-      </div>
-      <div class="proj-wrapper">
-        <article class="proj">
-          <div class="proj-head"><span class="proj-name">JNXVNET</span><span class="proj-status">building</span></div>
-          <p class="proj-desc">In-progress project — details coming as it takes shape.</p>
-        </article>
-      </div>
-      <div class="proj-wrapper">
-        <article class="proj">
-          <div class="proj-head"><span class="proj-name">IMG_DB</span><span class="proj-status">building</span></div>
-          <p class="proj-desc">In-progress project — details coming as it takes shape.</p>
-        </article>
-      </div>
-      <div class="proj-wrapper">
-        <article class="proj">
-          <div class="proj-head"><span class="proj-name">MOCK2MASTER</span><span class="proj-status">building</span></div>
-          <p class="proj-desc">In-progress project — details coming as it takes shape.</p>
-        </article>
-      </div>
-      <div class="proj-wrapper">
-        <article class="proj">
-          <div class="proj-head"><span class="proj-name">+ more</span><span class="proj-status">queued</span></div>
-          <p class="proj-desc">More builds lined up. This list grows as they start.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section id="stack">
-    <div class="divider"><span class="path">~/stack.json</span></div>
-    <div class="stack">
-      <span class="stack-item">HTML / CSS / JS</span>
-      <span class="stack-item">Linux (learning internals)</span>
-      <span class="stack-item">Shell scripting</span>
-      <span class="stack-item">Git</span>
-      <span class="stack-item">Data / stock APIs</span>
-    </div>
-  </section>
-</main>
-
-<footer>
-  <div class="divider"><span class="path">~/contact</span></div>
-  <p>Open to collabs on startup ideas, dev tools, or anything Linux-shaped.</p>
-  <div class="foot-links">
-    <a href="mailto:you@quimovzx.in">email</a>
-    <a href="#" id="gh-link">github</a>
-    <a href="#" id="li-link">linkedin</a>
-  </div>
-  <p style="margin-top:28px; color:var(--panel-line);">© 2026 quimovzx — still compiling.</p>
-</footer>
+<div id="pal"><div class="box"><input id="palIn" placeholder="Type to jump or open a project..." aria-label="Command menu"><ul id="palList"></ul></div></div>
 
 <script>
-  // --- 1. Terminal Text Processing Sequence ---
-  const bootLines = [
-    "[    0.000] quimovzx-kernel: initializing...",
-    "[    0.120] loading modules: webdev, fintech-tools, linux-core",
-    "[    0.340] mounting /projects ...",
-    "[    0.512] penguin.sys ......... OK",
-    "[    0.688] chocolate.cache ..... OK",
-    "[    0.910] distro-build: status = in-progress",
-    "[    1.200] READY."
-  ];
-  const el = document.getElementById('boot');
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    bootLines.forEach(line => {
-      const div = document.createElement('div');
-      if(line.includes('READY.')) div.className = 'ready';
-      div.textContent = line;
-      el.appendChild(div);
-    });
-  } else {
-    let lineIdx = 0;
-    function typeLine(){
-      if(lineIdx >= bootLines.length) return;
-      const line = bootLines[lineIdx];
-      const div = document.createElement('div');
-      if(line.includes('READY.')) div.className = 'ready';
-      el.appendChild(div);
-      let charIdx = 0;
-      const interval = setInterval(() => {
-        div.textContent = line.slice(0, charIdx + 1);
-        charIdx++;
-        if(charIdx >= line.length){
-          clearInterval(interval);
-          lineIdx++;
-          setTimeout(typeLine, 80);
-        }
-      }, 6);
-    }
-    typeLine();
-  }
+const GH="https://github.com/quimovzx-dev";
+const projects=[
+{n:"JEE Main Forum",d:"Community Q&A for JEE Main students with bilingual English and Hindi FAQs, answers, votes and persistent storage.",t:["web","community"],s:["Node","Redis","Vercel"],live:"https://jee-main-forum.vercel.app/",note:"Community project, not an official NTA site."},
+{n:"ascii3d",d:"Turns a photo into a rotatable 3D ASCII model, entirely in the browser. Uses approximate geometry from a single image.",t:["web","creative"],s:["JS","Canvas"],live:"https://ascii3d-blue.vercel.app",repo:GH+"/ascii3d",feat:1},
+{n:"ascii-eyes",d:"Two watching eyes drawn only from text characters. They blink and follow your pointer. One HTML file, no libraries.",t:["creative"],s:["HTML","JS"],live:"https://ascii-eyes.vercel.app",repo:GH+"/ascii-eyes"},
+{n:"ASCIIFY",d:"Drop a photo, get colored character art back. Download as PNG or TXT.",t:["creative","web"],s:["JS"],live:"https://terminalseen.vercel.app",repo:GH+"/Terminalseen"},
+{n:"lanpeek",d:"Fast LAN toolkit in Go: discover devices, scan ports, inspect your network. Source available, no release yet.",t:["tools"],s:["Go"],repo:GH+"/lanpeek"},
+{n:"Termflex",d:"Terminal media player for images, GIFs and video.",t:["tools"],s:["Python"],live:"https://termflex-rust.vercel.app",repo:GH+"/Termflex"},
+{n:"Frametrack",d:"FocusGuard, a webcam-based study monitor prototype.",t:["vision","web"],s:["JS"],live:"https://frametrack-ten.vercel.app",repo:GH+"/Frametrack"},
+{n:"Airtouch",d:"AirCanvas: draw in the air with hand tracking.",t:["vision","creative"],s:["JS"],repo:GH+"/Airtouch"},
+{n:"Livelens",d:"A live lens that reacts to gestures.",t:["vision"],s:["JS"],live:"https://livelens-xi.vercel.app",repo:GH+"/Livelens"},
+{n:"Pymoji",d:"Face to Python to emoji.",t:["vision","creative"],s:["HTML","JS"],live:"https://pymoji.vercel.app",repo:GH+"/Pymoji"},
+{n:"Livesign",d:"Sign to word, an experiment in reading gestures.",t:["vision"],s:["HTML","JS"],live:"https://livesign-nu.vercel.app",repo:GH+"/Livesign"},
+{n:"Coorditracker",d:"Trace coordinates and bring them to life.",t:["creative"],s:["HTML","JS"],live:"https://coorditracker.vercel.app",repo:GH+"/Coorditracker"},
+{n:"JanVoice",d:"District platform for problems, ideas and polls.",t:["community","web"],s:["JS"],live:"https://anvoic-v0-1.vercel.app",repo:GH+"/ANVOIC_V0.1"},
+{n:"NETX",d:"Phone-friendly research platform with a live knowledge graph and persistent projects.",t:["tools"],s:["Python"],repo:GH+"/NETX"},
+{n:"BlueScan",d:"Android BLE scanner built with Python and Kivy. Version 0.1.0.",t:["tools"],s:["Python","Kivy"],repo:GH+"/BlueScan"},
+{n:"Star Catcher",d:"Catch the stars and make your wishes. A browser game.",t:["games"],s:["HTML","JS"],live:"https://starcatcher-psi.vercel.app",repo:GH+"/star_catcher"},
+{n:"Turbo Park",d:"Browser driving game.",t:["games"],s:["HTML","JS"],live:"https://xace-smoky.vercel.app",repo:GH+"/GAMEIIID"}
+];
+// ADD MORE PUBLIC LINKS HERE: {label:"Instagram",url:"https://..."}
+const socials=[{label:"GitHub",url:GH},{label:"Instagram @__.kuber",url:"https://www.instagram.com/__.kuber/"},{label:"LinkedIn",url:"https://in.linkedin.com/in/kuber-lahare-1139a5405"}];
 
-  // --- 2. Advanced Multi-Device Sensor Engine (PC & Accelerometer Hooks) ---
-  const cards = document.querySelectorAll('.proj');
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cats=["all","web","creative","vision","tools","games","community"];
+const chips=document.getElementById("chips"),grid=document.getElementById("grid");
+let cur="all";
+cats.forEach(c=>{const b=document.createElement("button");b.className="chip"+(c==="all"?" on":"");b.textContent=c[0].toUpperCase()+c.slice(1);b.onclick=()=>{cur=c;[...chips.children].forEach(x=>x.classList.toggle("on",x===b));draw()};chips.appendChild(b)});
+function esc(s){return s.replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}
+function draw(){grid.innerHTML="";projects.filter(p=>cur==="all"||p.t.includes(cur)).forEach(p=>{
+const el=document.createElement("article");el.className="card"+(p.feat&&cur==="all"?" feat":"");
+let h=`<div><h3>${esc(p.n)}</h3><p>${esc(p.d)}</p></div>`;
+const side=`<div class="tags">${p.s.map(x=>`<span>${esc(x)}</span>`).join("")}</div>${p.note?`<div class="note">${esc(p.note)}</div>`:""}<div class="links">${p.live?`<a href="${p.live}" target="_blank" rel="noopener">Live &rarr;</a>`:""}${p.repo?`<a href="${p.repo}" target="_blank" rel="noopener">Code</a>`:""}</div>`;
+if(p.feat&&cur==="all"){el.innerHTML=`<div style="display:grid;gap:12px">${h}${side}</div><div class="demo" id="demo" title="Click me">&#9608;&#9619;&#9618;&#9617; ascii3d</div>`}
+else el.innerHTML=h+side;
+el.addEventListener("pointermove",e=>{const r=el.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;el.style.setProperty("--mx",x+"px");el.style.setProperty("--my",y+"px");
+if(matchMedia("(hover:hover)").matches&&!matchMedia("(prefers-reduced-motion:reduce)").matches)el.style.transform=`perspective(800px) rotateX(${((y/r.height)-.5)*-5}deg) rotateY(${((x/r.width)-.5)*5}deg)`});
+el.addEventListener("pointerleave",()=>el.style.transform="");grid.appendChild(el)});
+const d=document.getElementById("demo");if(d){const ramp=" .:-=+*#%@";let t=0;d.onclick=()=>{t++};setInterval(()=>{const w=22;let s="";for(let i=0;i<w;i++){s+=ramp[Math.floor((Math.sin(i/2+performance.now()/400+t)+1)/2*(ramp.length-1))]}d.textContent=s},90)}}
+draw();
+document.getElementById("connectLinks").innerHTML=socials.map(s=>`<a href="${s.url}" target="_blank" rel="noopener">${esc(s.label)} &rarr;</a>`).join("");
+document.getElementById("yr").textContent=new Date().getFullYear();
 
-  if (!reduceMotion) {
-    // Desktop: Tracking Vectors & Specular Position Light Updates
-    cards.forEach(card => {
-      card.addEventListener('mousemove', (e) => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        // Calculate Specular highlights percentage coordinates
-        card.style.setProperty('--mx', `${(x / rect.width) * 100}%`);
-        card.style.setProperty('--my', `${(y / rect.height) * 100}%`);
+// typed line
+const phrases=["browser experiments with canvas and cameras.","small tools that solve real problems.","community projects for fellow students.","CLIs in Python and Go."];
+const tp=document.getElementById("typed");let pi=0,ci=0,del=false;
+if(matchMedia("(prefers-reduced-motion:reduce)").matches){tp.textContent=phrases[0];tp.style.border=0}else(function tick(){const f=phrases[pi];ci+=del?-1:1;tp.textContent=f.slice(0,ci);let w=del?25:55;if(!del&&ci===f.length){del=true;w=1500}else if(del&&ci===0){del=false;pi=(pi+1)%phrases.length;w=350}setTimeout(tick,w)})();
 
-        const rotateX = -((y - rect.height / 2) / rect.height) * 20; 
-        const rotateY = ((x - rect.width / 2) / rect.width) * 20;
-        
-        card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(15px)`;
-      });
+// reveal + counters
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");e.target.querySelectorAll("[data-n]").forEach(c=>{const n=+c.dataset.n,s=performance.now();(function f(t){const k=Math.min(1,(t-s)/1100);c.textContent=Math.round(n*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(f)})(s)});io.unobserve(e.target)}}),{threshold:.15});
+document.querySelectorAll(".reveal").forEach(e=>io.observe(e));
 
-      card.addEventListener('mouseleave', () => {
-        card.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0)';
-      });
-    });
+// constellation hero
+const cv=document.getElementById("net"),cx=cv.getContext("2d");let W,H,pts=[],mouse={x:-999,y:-999};
+function size(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight;const n=Math.min(90,Math.floor(W*H/14000));pts=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35}))}
+size();addEventListener("resize",size);
+cv.parentElement.addEventListener("pointermove",e=>{const r=cv.getBoundingClientRect();mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top});
+cv.parentElement.addEventListener("pointerleave",()=>mouse.x=-999);
+const still=matchMedia("(prefers-reduced-motion:reduce)").matches;
+(function loop(){cx.clearRect(0,0,W,H);for(const p of pts){if(!still){p.x+=p.vx;p.y+=p.vy}if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
+const dx=p.x-mouse.x,dy=p.y-mouse.y,d=Math.hypot(dx,dy);if(d<130&&!still){p.x+=dx/d*1.4;p.y+=dy/d*1.4}
+cx.fillStyle="rgba(124,156,255,.8)";cx.beginPath();cx.arc(p.x,p.y,1.6,0,7);cx.fill()}
+for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<120){cx.strokeStyle=`rgba(94,234,212,${.22*(1-d/120)})`;cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.stroke()}}
+const m=mouse;if(m.x>0)for(const p of pts){const d=Math.hypot(p.x-m.x,p.y-m.y);if(d<150){cx.strokeStyle=`rgba(124,156,255,${.5*(1-d/150)})`;cx.beginPath();cx.moveTo(p.x,p.y);cx.lineTo(m.x,m.y);cx.stroke()}}
+requestAnimationFrame(loop)})();
 
-    // Mobile: Gyroscope & Mobile Accelerometer API Configuration
-    if (window.DeviceOrientationEvent) {
-      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-        window.addEventListener('touchstart', () => {
-          DeviceOrientationEvent.requestPermission().catch(console.error);
-        }, { once: true });
-      }
-
-      window.addEventListener('deviceorientation', (e) => {
-        if (!e.beta || !e.gamma) return;
-        
-        // Convert physics coordinates down to safe aesthetic bounds (-20 to 20 range)
-        const tiltX = Math.min(Math.max(e.beta - 45, -20), 20) / 2; 
-        const tiltY = Math.min(Math.max(e.gamma, -20), 20) / 2;
-
-        cards.forEach(card => {
-          card.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
-          
-          // Move specular center point along with physical device orientation
-          const px = 50 + (tiltY * 2);
-          const py = 50 + (tiltX * 2);
-          card.style.setProperty('--mx', `${px}%`);
-          card.style.setProperty('--my', `${py}%`);
-        });
-      });
-    }
-  }
-
-  // --- 3. Intersection Observer Core & Dynamic Highlighting ---
-  const sections = document.querySelectorAll('main section');
-  const navItems = document.querySelectorAll('.nav-item');
-
-  const observerOptions = {
-    root: null,
-    rootMargin: '-30% 0px -50% 0px',
-    threshold: 0
-  };
-
-  const sectionObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        
-        navItems.forEach(item => {
-          item.classList.toggle('active', item.getAttribute('data-sec') === entry.target.id);
-        });
-      }
-    });
-  }, observerOptions);
-
-  sections.forEach(sec => sectionObserver.observe(sec));
+// command palette
+const pal=document.getElementById("pal"),pin=document.getElementById("palIn"),pl=document.getElementById("palList");
+const cmds=[["Go to Work","#work"],["Go to About","#about"],["Go to Skills","#skills"],["Go to Connect","#connect"],...socials.map(s=>["Open "+s.label,s.url]),...projects.map(p=>["Project: "+p.n,p.live||p.repo])];
+let sel=0,shown=[];
+function render(){const q=pin.value.toLowerCase();shown=cmds.filter(c=>c[0].toLowerCase().includes(q)).slice(0,8);sel=Math.min(sel,Math.max(0,shown.length-1));pl.innerHTML=shown.map((c,i)=>`<li class="${i===sel?"sel":""}" data-i="${i}">${esc(c[0])}</li>`).join("")}
+function go(i){const c=shown[i];if(!c)return;close();if(c[1][0]==="#")location.hash=c[1];else window.open(c[1],"_blank","noopener")}
+function open(){pal.classList.add("open");pin.value="";sel=0;render();pin.focus()}
+function close(){pal.classList.remove("open")}
+document.getElementById("palBtn").onclick=open;
+pal.addEventListener("click",e=>{if(e.target===pal)close();const li=e.target.closest("li");if(li)go(+li.dataset.i)});
+pin.addEventListener("input",render);
+addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();pal.classList.contains("open")?close():open()}
+if(!pal.classList.contains("open"))return;if(e.key==="Escape")close();if(e.key==="ArrowDown"){sel=Math.min(sel+1,shown.length-1);render();e.preventDefault()}if(e.key==="ArrowUp"){sel=Math.max(sel-1,0);render();e.preventDefault()}if(e.key==="Enter")go(sel)});
 </script>
 </body>
 </html>
